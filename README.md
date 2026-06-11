@@ -42,9 +42,40 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**4. Inicie a varredura (exige os 2 arquivos .csv na pasta 'dados/'):**
+**4. Inicie a varredura (exige os 2 arquivos `.csv` na pasta `dados/`):**
+
+Gerar somente o comparativo de VUs e requisições por segundo:
+
+```bash
+python gerador_graficos.py --grafico vus
+```
+
+Saída: `graficos_gerados/comparativo_final_k6.png`
+
+Gerar somente o comparativo de duração das requisições:
+
+```bash
+python gerador_graficos.py --grafico duracao
+```
+
+Saída: `graficos_gerados/comparativo_duracao_k6.png`
+
+Gerar os dois gráficos:
+
+```bash
+python gerador_graficos.py --grafico ambos
+```
+
+Também é possível omitir a opção, pois `ambos` é o comportamento padrão:
+
 ```bash
 python gerador_graficos.py
+```
+
+Para consultar as opções disponíveis:
+
+```bash
+python gerador_graficos.py --help
 ```
 
 ---
