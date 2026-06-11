@@ -74,13 +74,15 @@ def gerar_grafico_duracao(arquivo_1, arquivo_2, legenda_1, legenda_2):
                 blocos_duracao.append(duracoes[['timestamp', 'metric_value']])
 
         if not blocos_duracao:
-            return pd.DataFrame(columns=['segundos_decorridos', 'media', 'p95'])
+            return pd.DataFrame(columns=['segundos_decorridos', 'media', 'p90', 'p95', 'p99'])
 
         dados = pd.concat(blocos_duracao)
         dados['timestamp'] = pd.to_datetime(dados['timestamp'], unit='s').dt.floor('s')
         dados = dados.groupby('timestamp')['metric_value'].agg(
             media='mean',
-            p95=lambda valores: valores.quantile(0.95)
+            p90=lambda valores: valores.quantile(0.90),
+            p95=lambda valores: valores.quantile(0.95),
+            p99=lambda valores: valores.quantile(0.99)
         ).reset_index()
         dados['segundos_decorridos'] = (
             dados['timestamp'] - dados['timestamp'].min()
@@ -98,14 +100,22 @@ def gerar_grafico_duracao(arquivo_1, arquivo_2, legenda_1, legenda_2):
     if not duracao_1.empty:
         ax_duracao.plot(duracao_1['segundos_decorridos'], duracao_1['media'],
                         color=COR_VUS_1, linewidth=1.5, label=f'Média - {legenda_1}')
+        ax_duracao.plot(duracao_1['segundos_decorridos'], duracao_1['p90'],
+                        color=COR_90_1, linewidth=2, label=f'P90 - {legenda_1}')
         ax_duracao.plot(duracao_1['segundos_decorridos'], duracao_1['p95'],
                         color=COR_RPS_1, linewidth=2, label=f'P95 - {legenda_1}')
+        ax_duracao.plot(duracao_1['segundos_decorridos'], duracao_1['p99'],
+                        color=COR_99_1, linewidth=2, label=f'P99 - {legenda_1}')
 
     if not duracao_2.empty:
         ax_duracao.plot(duracao_2['segundos_decorridos'], duracao_2['media'],
                         color=COR_VUS_2, linewidth=1.5, label=f'Média - {legenda_2}')
+        ax_duracao.plot(duracao_2['segundos_decorridos'], duracao_2['p90'],
+                        color=COR_90_2, linewidth=2, label=f'P90 - {legenda_2}')
         ax_duracao.plot(duracao_2['segundos_decorridos'], duracao_2['p95'],
                         color=COR_RPS_2, linewidth=2, label=f'P95 - {legenda_2}')
+        ax_duracao.plot(duracao_2['segundos_decorridos'], duracao_2['p99'],
+                        color=COR_99_2, linewidth=2, label=f'P99 - {legenda_2}')
 
     ax_duracao.set_title('Comparativo de Duração das Requisições HTTP',
                          fontsize=14, color='white', pad=15)
@@ -114,7 +124,7 @@ def gerar_grafico_duracao(arquivo_1, arquivo_2, legenda_1, legenda_2):
     ax_duracao.tick_params(axis='both', labelcolor='#cccccc')
     ax_duracao.grid(True, linestyle='-', alpha=0.1)
     ax_duracao.set_ylim(bottom=0)
-    ax_duracao.legend(loc='upper right', framealpha=0.7,
+    ax_duracao.legend(loc='upper left', framealpha=0.7,
                       facecolor='#111116', edgecolor='#333344', labelcolor='white')
 
     caminho_saida = 'graficos_gerados/comparativo_duracao_k6.png'
@@ -149,9 +159,13 @@ plt.style.use('dark_background')
 
 COR_VUS_1 = '#5c3a6b'  
 COR_RPS_1 = '#b388ff'  
+COR_90_1 = "#7055e9"  
+COR_99_1 = "#ab06b1"  
 
 COR_VUS_2 = '#1a594b'  
 COR_RPS_2 = '#00e676'  
+COR_90_2 = "#0aa70d"  
+COR_99_2 = "#1deff6"  
 
 os.makedirs('graficos_gerados', exist_ok=True)
 
